@@ -50,6 +50,14 @@ html, body {
 let rate = parseFloat(localStorage.getItem('rate') || '1')
 let history = JSON.parse(localStorage.getItem('history') || '[]')
 
+let qs = new URLSearchParams(location.search)
+if (qs.has('video')) {
+  history.push(qs.get('video'))
+}
+if (qs.has('rate')) {
+  rate = qs.get('rate')
+}
+
 speed.speed.addEventListener('input', e => {
   localStorage.setItem('rate', e.target.value)
   let x = parseFloat(e.target.value)
@@ -78,7 +86,7 @@ if (history.length === 0) {
 
   // set current to the last loaded video
   let last = history.slice(-1)[0]
-  source.source = last
+  source.source.value = last
   source.querySelector('button').disabled = true
   video.src = last
 }
@@ -92,8 +100,10 @@ source.addEventListener('submit', e => {
   e.target.querySelector('button').disabled = true
 
   // save history
-  history.push(e.target.source.value)
-  history = history.slice(-10) // only last 10
-  localStorage.setItem('history', JSON.stringify(history))
+  if (history.indexOf(e.target.source.value) === -1) {
+    history.push(e.target.source.value)
+    history = history.slice(-10) // only last 10
+    localStorage.setItem('history', JSON.stringify(history))
+  }
 })
 </script>
