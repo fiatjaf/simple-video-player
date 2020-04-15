@@ -48,11 +48,11 @@ html, body {
 
 <script>
 let rate = parseFloat(localStorage.getItem('rate') || '1')
-let history = JSON.parse(localStorage.getItem('history') || '[]')
+let vhistory = JSON.parse(localStorage.getItem('history') || '[]')
 
 let qs = new URLSearchParams(location.search)
 if (qs.has('video')) {
-  history.push(qs.get('video'))
+  vhistory.push(qs.get('video'))
 }
 if (qs.has('rate')) {
   rate = qs.get('rate')
@@ -65,10 +65,10 @@ speed.speed.addEventListener('input', e => {
   speed.querySelector('label').innerHTML = x + '×'
 })
 
-if (history.length === 0) {
+if (vhistory.length === 0) {
   source.removeChild(source.past)
 } else {
-  history.forEach(src => {
+  vhistory.forEach(src => {
     let item = document.createElement('option')
     item.value = src
     try {
@@ -85,10 +85,8 @@ if (history.length === 0) {
   })
 
   // set current to the last loaded video
-  let last = history.slice(-1)[0]
-  source.source.value = last
-  source.querySelector('button').disabled = true
-  video.src = last
+  let last = vhistory.slice(-1)[0]
+  loadVideo(last)
 }
 
 source.source.addEventListener('input', e => {
@@ -96,14 +94,23 @@ source.source.addEventListener('input', e => {
 })
 source.addEventListener('submit', e => {
   e.preventDefault()
-  video.src = e.target.source.value
-  e.target.querySelector('button').disabled = true
-
-  // save history
-  if (history.indexOf(e.target.source.value) === -1) {
-    history.push(e.target.source.value)
-    history = history.slice(-10) // only last 10
-    localStorage.setItem('history', JSON.stringify(history))
-  }
+  loadVideo(e.target.source.value)
 })
+
+function loadVideo (src) {
+  video.src = src
+  document.querySelector('#source button').disabled = true
+
+  // save vhistory
+  if (vhistory.indexOf(src) === -1) {
+    vhistory.push(src)
+    vhistory = vhistory.slice(-10) // only last 10
+    localStorage.setItem('history', JSON.stringify(vhistory))
+  }
+
+  // change browser URL
+  let qs = new URLSearchParams()
+  qs.set('video', src)
+  history.pushState(null, '', '/?' + qs.toString())
+}
 </script>
