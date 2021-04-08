@@ -99,7 +99,8 @@ source.addEventListener('submit', e => {
 
 function loadVideo (src) {
   video.src = src
-  document.querySelector('#source button').disabled = true
+  source.querySelector('button').disabled = true
+  source.source.value = src
 
   // save vhistory
   if (vhistory.indexOf(src) === -1) {
